@@ -30,5 +30,5 @@ plt.axis([min_x,max_x+gs,min_y,max_y+gs])
 
 for i in range(int((min_y/gs)), int((max_y/gs)+1)):
     for j in range(int(min_x/gs), int((max_x/gs)+1)):
-        index = compute_index(min_x, max_x, min_y, max_y, gs, j, i)*gs
+
         plt.text(j*gs, i*gs, str(int(index)), color="red", fontsize=8)
