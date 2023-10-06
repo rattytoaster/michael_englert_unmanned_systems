@@ -3,13 +3,16 @@ import numpy as np
 import math as m
 import matplotlib as plt
 
+import Node
+import Obstacle
+
 
 
 
 class Djikstras():
-    def __init__(self, min_x, max_x, min_y, max_y, 
-            obstacle_positions, obs_radius, start_x, start_y, goal_x, 
-            goal_y, gs, robot_radius):
+    def __init__(self, min_x: float, max_x: float, min_y:float, max_y:float, 
+        obstacle_positions:list, obs_radius:float, start_x:float, start_y:float, goal_x:float, 
+        goal_y:float, gs:float, robot_radius:float):
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
@@ -26,9 +29,9 @@ class Djikstras():
 
             
     def is_inside(self,curr_x:float, curr_y:float, 
-                  robot_radius:float=0) -> bool:
+                    robot_radius:float=0) -> bool:
         """
-           Compute euclidean distance from current location -> obstacle locatin
+            Compute euclidean distance from current location -> obstacle locatin
             Store this value in a variable: dist_from 
             If dist_from > obstacle size:
                     return false
@@ -42,7 +45,7 @@ class Djikstras():
         return True
 
     def compute_index(self, min_x:int, max_x:int, min_y:int, max_y:int,
-                     gs:float, curr_x:int, curr_y:int) -> float:
+                        gs:float, curr_x:int, curr_y:int) -> float:
 
         index = ((curr_x - min_x)/gs) + ((curr_y - min_y)/gs) * ((max_x+gs - min_x)/gs)
         
@@ -78,15 +81,15 @@ class Djikstras():
                 move_list.append(move)
                 
         return move_list
-                 
+                    
     def is_not_valid(self, obst_list:list, 
-                     x_min:int, 
-                     y_min:int, 
-                     x_max:int, 
-                     y_max:int,
-                     x_curr:float, 
-                     y_curr:float, 
-                     agent_radius:float=0.0):
+                        x_min:int, 
+                        y_min:int, 
+                        x_max:int, 
+                        y_max:int,
+                        x_curr:float, 
+                        y_curr:float, 
+                        agent_radius:float=0.0):
         """
         - True if not valid
         - False if valid
@@ -118,21 +121,21 @@ class Djikstras():
             return True
 
         return False
-    
-    
-    #initialize obstacle list
-    obstacle_list = [] # store obstacle classes
-    
-    # Loop through position of obstacles
-    for obs_pos in obstacle_positions:
-        obstacle = Obstacle(obs_pos[0], obs_pos[1], obs_radius)
-        obstacle_list.append(obstacle)
+
+
+        #initialize obstacle list
+        obstacle_list = [] # store obstacle classes
+
+        # Loop through position of obstacles
+        for obs_pos in obstacle_positions:
+            obstacle = Obstacle(obs_pos[0], obs_pos[1], obs_radius)
+            obstacle_list.append(obstacle)
         
 
 
 
 
-    
+
     def find_path(self, start_x:float, start_y:float):
             # - Make two bins/dictionaries:
         unvisited = {}
@@ -148,7 +151,7 @@ class Djikstras():
 
         # - initialize current_index by utilizing compute_index() function 
         # based on the current position, which is the start 
-        current_idx = int(compute_index(min_x, max_x, min_y, max_y,
+        current_idx = int(self.compute_index(min_x, max_x, min_y, max_y,
                         gs, start_x, start_y))
 
 
@@ -188,7 +191,7 @@ class Djikstras():
             
             # Begin search by doing th following:
             # - Use get_all_moves() to get all moves based on current position
-            all_moves = get_all_moves(current_node.x, current_node.y, gs)
+            all_moves = self.get_all_moves(current_node.x, current_node.y, gs)
 
             #initialize a filtered_move list 
             filtered_moves = []
@@ -200,7 +203,7 @@ class Djikstras():
             #         - Outside boundary 
             #         - Not on top of ourselves(already done by get_all moves)
             for move in all_moves:
-                if (is_not_valid(obstacle_list, min_x, min_y, max_x, max_y, 
+                if (self.is_not_valid(obstacle_list, min_x, min_y, max_x, max_y, 
                                 move[0], move[1], robot_radius) == True):
                     continue
                 else:
@@ -213,7 +216,7 @@ class Djikstras():
                 # based on this current filtered move:
                 
                 # calculate the filtered/new index
-                new_index = int(compute_index(min_x, max_x, min_y, max_y,
+                new_index = int(self.compute_index(min_x, max_x, min_y, max_y,
                         gs, move[0], move[1]))
                 
                 # calculate the filtered/new cost

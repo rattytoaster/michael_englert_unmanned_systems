@@ -2,6 +2,9 @@ import numpy as np
 import math as m
 import matplotlib.pyplot as plt
 
+import Node
+import Obstacle
+
 
 
 
@@ -17,9 +20,9 @@ import matplotlib.pyplot as plt
 
 
 class DjikstrasAstar():
-    def __init__(self, min_x, max_x, min_y, max_y, 
-        obstacle_positions, obs_radius, start_x, start_y, goal_x, 
-        goal_y, gs, robot_radius):
+    def __init__(self, min_x: float, max_x: float, min_y:float, max_y:float, 
+        obstacle_positions:list, obs_radius:float, start_x:float, start_y:float, goal_x:float, 
+        goal_y:float, gs:float, robot_radius:float):
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
@@ -33,21 +36,21 @@ class DjikstrasAstar():
         self.gs = gs
         self.robot_radius = robot_radius
 
-        def is_inside(self,curr_x:float, curr_y:float, 
-                      robot_radius:float=0) -> bool:
-            """
-            Compute euclidean distance from current location -> obstacle locatin
-            Store this value in a variable: dist_from 
-            If dist_from > obstacle size:
-                    return false
-            Otherwise return true
-            """
-            dist_from = np.sqrt((curr_x - self.x_pos)**2 + (curr_y - self.y_pos)**2)
-            
-            if dist_from > self.radius + robot_radius:
-                return False
-            
-            return True
+    def is_inside(self,curr_x:float, curr_y:float, 
+                    robot_radius:float=0) -> bool:
+        """
+        Compute euclidean distance from current location -> obstacle locatin
+        Store this value in a variable: dist_from 
+        If dist_from > obstacle size:
+                return false
+        Otherwise return true
+        """
+        dist_from = np.sqrt((curr_x - self.x_pos)**2 + (curr_y - self.y_pos)**2)
+        
+        if dist_from > self.radius + robot_radius:
+            return False
+        
+        return True
 
     def compute_index(min_x:int, max_x:int, min_y:int, max_y:int,
                      gs:float, curr_x:int, curr_y:int) -> float:
@@ -135,9 +138,7 @@ class DjikstrasAstar():
     for obs_pos in obstacle_positions:
         obstacle = Obstacle(obs_pos[0], obs_pos[1], obs_radius)
         obstacle_list.append(obstacle)
-        
-
-
+    
 
     def find_path(self, start_x:float, start_y:float, min_x:int, min_y:int, max_x:int, max_y:int, goal_x:int, goal_y:int, obstacle_list:list, 
                   gs:float):
@@ -156,7 +157,7 @@ class DjikstrasAstar():
 
         # - initialize current_index by utilizing compute_index() function 
         # based on the current position, which is the start 
-        current_idx = int(compute_index(min_x, max_x, min_y, max_y,
+        current_idx = int(self.compute_index(min_x, max_x, min_y, max_y,
                         gs, start_x, start_y))
 
 
@@ -199,7 +200,7 @@ class DjikstrasAstar():
             
             # Begin search by doing th following:
             # - Use get_all_moves() to get all moves based on current position
-            all_moves = get_all_moves(current_node.x, current_node.y, gs)
+            all_moves = self.get_all_moves(current_node.x, current_node.y, gs)
 
             #initialize a filtered_move list 
             filtered_moves = []
@@ -211,7 +212,7 @@ class DjikstrasAstar():
             #         - Outside boundary 
             #         - Not on top of ourselves(already done by get_all moves)
             for move in all_moves:
-                if (is_not_valid(obstacle_list, min_x, min_y, max_x, max_y, 
+                if (self.is_not_valid(obstacle_list, min_x, min_y, max_x, max_y, 
                                 move[0], move[1], robot_radius) == True):
                     continue
                 else:
@@ -224,7 +225,7 @@ class DjikstrasAstar():
                 # based on this current filtered move:
                 
                 # calculate the filtered/new index
-                new_index = int(compute_index(min_x, max_x, min_y, max_y,
+                new_index = int(self.compute_index(min_x, max_x, min_y, max_y,
                         gs, move[0], move[1]))
                 
                 # calculate the filtered/new cost
