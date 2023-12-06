@@ -1,0 +1,196 @@
+import numpy as np
+import math as m
+import matplotlib.pyplot as plt
+
+import itertools
+
+import Djikstra_Astar_final
+import Djikstras_final
+
+import tqdm
+
+
+for i in tqdm.tqdm(range(0, 1)):
+
+
+    x_min = 0.0
+    x_max = 15
+    y_min = 0.0
+    y_max = 15.0
+    gs = 0.5
+    robot_radius = 0.5
+
+    start_x = 1.0
+    start_y = 1.0
+
+    path_list = []
+    cost_list = []
+    #waypoints = [(9,4), (9,7)]
+    #waypoints = [(9,7), (1,9), (4,4), (9,4), (6,14), (3,11), (14,1), (1,14), (14,14), (7,10)]
+    #waypoints = [(9,7), (1,9), (4,4), (9,4), (6,14), (3,11), (14,1), (1,14), (14,14), (7,10)]
+    waypoints = [(9,4), (4,4), (1,9), (9,7), (6,14)]
+    #waypoints = [(9.0,4.0),(9.0,7.0)]
+    ox = [2, 2, 2, 2, 0, 1, 2, 3, 4, 5, 5, 5, 5, 5, 8, 9, 10, 11, 12, 13, 8, 8, 8, 8, 8, 8, 8, 2, 3, 4, 5, 6, 9, 10, 11, 12, 15, 2, 2, 2,  2,  2,  2,  5, 5,  5,  5,  5,  5,  5,  6,  7,  8,  9,  10, 11, 12, 12, 12, 12, 12]
+    oy = [2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 2, 3, 4, 5, 2, 2, 2,  2,  2,  2,  3, 4, 5, 6, 7, 8, 9, 7, 7, 7, 7, 7, 6, 6,  6,  6,  6,  8, 9, 10, 11, 12, 13, 9, 10, 11, 12, 13, 14, 15, 12, 12, 12, 12, 12, 12, 8,  9,  10, 11, 12]
+
+    obstacles = []
+    for i in range(len(ox)):
+        obstacles.append((ox[i],oy[i]))
+    #obstacles = []
+
+    costs = []
+    possible_orders = [[]]
+    possible_orders = list(itertools.permutations(waypoints))
+
+    segment_costs = []
+    segment_paths = []
+    segments = []
+
+    waypoints.insert(0, (start_x,start_y))
+    print("waypoints", waypoints)
+
+    #temp_goal = waypoints[0]
+    #temp_path, temp_cost = Djikstra_Astar_final.Astar(x_min,x_max,y_min,y_max,obstacles,0.0,start_x,start_y,temp_goal[0],temp_goal[1],gs,robot_radius)
+
+    #segment_costs.append(temp_cost)
+    #segment_paths.append(temp_path)
+    #segments.append(((0,0), temp_goal))
+
+
+
+    for i in range(len(waypoints)):
+        for e in range(len(waypoints)):
+            if i != e:
+                temp_start = waypoints[i]
+                temp_goal = waypoints[e]
+
+                #print("current segment", temp_start, temp_goal)
+                temp_path, temp_cost = Djikstra_Astar_final.Astar(x_min,x_max,y_min,y_max,obstacles,0.0,temp_start[0],temp_start[1],temp_goal[0],temp_goal[1],gs,robot_radius)
+                #print("segment path", temp_path)
+                #print("segment cost", temp_cost)
+                #print("segment path:", temp_path)
+                segment = [temp_start,temp_goal]
+                #print("possbiel segment", segment)
+                #print("astar segment path", temp_path)
+
+                segment_costs.append(temp_cost)
+                segment_paths.append(temp_path)
+                segments.append(segment)
+    #print("total segments possible", i*e)
+    #print(segments)
+
+
+    #waypoints.insert(0, (start_x,start_y))
+
+    print("segments and worlds initiated")
+
+
+
+    segment_index = 0
+    tracker=0
+    for order in possible_orders:
+        order = list(order)
+        tracker=tracker+1
+
+    #how do we make 0.0 the first wp in every possible path?    
+        order.insert(0,(start_x,start_y))
+        #print("current path", order)
+        path_cost = 0.0
+        path_curr = []
+
+        
+        for i in range(len(order)-1):
+            temp_start = order[i]
+            temp_goal = order[i+1]
+            curr_segment = [temp_start,temp_goal]
+            #print("curr segment", curr_segment)
+            temp_index = 0
+            #segment_index = 0
+            for segment in segments:
+
+                #print("temp_index", temp_index)
+                #print("segment of search", curr_segment)
+                #print("current segment", segment)
+                if segment == curr_segment:
+                    #print("yup")
+                    segment_index = temp_index
+                temp_index = temp_index + 1
+        # print("segment index", segment_index)
+
+                
+                
+            #temp_goal_x = temp_goal[0]
+            #temp_goal_y = temp_goal[1]
+
+            #temp_start_x = temp_start[0]
+            #temp_start_y = temp_start[1]
+
+            #print("temp start", temp_start_x, temp_start_y)
+            #print("temp goal:", temp_goal_x, temp_goal_y)
+            #temp_path, temp_cost = Djikstra_Astar_final.Astar(x_min,x_max,y_min,y_max,obstacles, robot_radius, temp_start[0],temp_start[1], temp_goal[0], temp_goal[1],gs,0.0)
+            #temp_path, temp_cost = Djikstra_Astar_final.Astar(x_min,x_max,y_min,y_max,obstacles,0.0,temp_start_x,temp_start_y,temp_goal_x,temp_goal_y,gs,robot_radius)
+            #temp_path, temp_cost = Djikstras_final.Djikstras.djikstras(x_min,x_max,y_min,y_max,obstacles,0.0,temp_start_x,temp_start_y,temp_goal_x,temp_goal_y,gs,robot_radius)
+
+            temp_cost = segment_costs[segment_index]
+            temp_path = segment_paths[segment_index]
+
+            #print("segment path", temp_path)
+            #print("segment cost", temp_cost)
+
+            #print("temp path", temp_path)
+            path_cost = path_cost + temp_cost
+            for wp in temp_path:
+                path_curr.append(wp)
+
+        path_list.append(path_curr)
+        cost_list.append(path_cost)
+        if tracker == 1:
+            min_cost = path_cost
+            path_min = path_curr
+
+            max_cost = path_cost
+            path_max = path_curr
+        
+        if path_cost < min_cost:
+            min_cost = path_cost
+            path_min = path_curr
+        if path_cost > max_cost:
+            max_cost = path_cost
+            path_max = path_curr
+        #cprint("current cost", path_cost)
+
+            
+
+    print("min path:", path_min)
+    print("min cost", min_cost)
+
+    fig, ax = plt.subplots()
+
+    for obs in obstacles:
+        obs_plot = plt.Circle((obs[0], obs[1]), robot_radius, color='red')
+        ax.add_patch(obs_plot)
+        
+    for stop in waypoints:
+        wp_plot = plt.Circle((stop[0], stop[1]), robot_radius, color='green')
+        ax.add_patch(wp_plot)
+
+    path_min_x = []
+    path_min_y = []
+    for wp in path_min:
+        #print("wp", wp)
+        path_min_x.append((wp[0]))
+        path_min_y.append((wp[1]))
+
+    ax.plot(path_min_x, path_min_y, 'b')
+
+    print("max cost:", max(cost_list))
+    avg_cost = sum(cost_list)/tracker
+
+    print("avg cost", avg_cost)
+
+
+    plt.show()
+
+    continue
+
+
