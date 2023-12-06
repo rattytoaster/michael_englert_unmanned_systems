@@ -2,8 +2,6 @@ import numpy as np
 import math as m
 import matplotlib.pyplot as plt
 
-import Node
-import Obstacle
 
 
 
@@ -19,38 +17,66 @@ import Obstacle
 
 
 
-class DjikstrasAstar():
-    def __init__(self, min_x: float, max_x: float, min_y:float, max_y:float, 
-        obstacle_positions:list, obs_radius:float, start_x:float, start_y:float, goal_x:float, 
-        goal_y:float, gs:float, robot_radius:float):
-        self.min_x = min_x
-        self.min_y = min_y
-        self.max_x = max_x
-        self.max_y = max_y
-        self.obstacle_positions = obstacle_positions
-        self.obs_radius = obs_radius
-        self.start_x = start_x
-        self.start_y = start_y
-        self.goal_x = goal_x
-        self.goal_y = goal_y
-        self.gs = gs
-        self.robot_radius = robot_radius
 
-    def is_inside(self,curr_x:float, curr_y:float, 
-                    robot_radius:float=0) -> bool:
-        """
-        Compute euclidean distance from current location -> obstacle locatin
-        Store this value in a variable: dist_from 
-        If dist_from > obstacle size:
-                return false
-        Otherwise return true
-        """
-        dist_from = np.sqrt((curr_x - self.x_pos)**2 + (curr_y - self.y_pos)**2)
+class Astar():
+    def __init__(self,min_x, max_x, min_y, max_y, 
+              obstacle_positions, obs_radius, start_x, start_y, goal_x, 
+              goal_y, gs, robot_radius):
+                self.min_x = min_x
+                self.min_y = min_y
+                self.max_x = max_x
+                self.max_y = max_y
+                self.obstacle_positions = obstacle_positions
+                self.obs_radius = obs_radius
+                self.start_x = start_x
+                self.start_y = start_y
+                self.goal_x = goal_x
+                self.goal_y = goal_y
+                self.gs = gs
+                self.robot_radius = robot_radius
+
+def Astar(min_x, max_x, min_y, max_y, 
+              obstacle_positions, obs_radius, start_x, start_y, goal_x, 
+              goal_y, gs, robot_radius):
+    class Node():
+        def __init__(self, 
+                     x:float ,
+                     y:float,
+                     cost:float, 
+                     parent_idx:int, djikstras:float) -> None:
+            self.x = x
+            self.y = y 
+            self.cost = cost
+            self.parent_idx = int(parent_idx)
+            self.djikstras = djikstras
+    def compute_distance(x_1:float, y_1:float, x_2:float, y_2:float) -> float:
         
-        if dist_from > self.radius + robot_radius:
-            return False
+            distance = np.sqrt((x_1-x_2)**2 + (y_1-y_2)**2)
         
-        return True
+            return distance
+            
+            
+    class Obstacle():
+        def __init__(self, x_pos:float, y_pos:float, radius:float) -> None:
+            self.x_pos = x_pos
+            self.y_pos = y_pos
+            self.radius = radius
+            
+        def is_inside(self,curr_x:float, curr_y:float, 
+                      robot_radius:float=0) -> bool:
+            """
+            Compute euclidean distance from current location -> obstacle locatin
+            Store this value in a variable: dist_from 
+            If dist_from > obstacle size:
+                    return false
+            Otherwise return true
+            """
+            dist_from = np.sqrt((curr_x - self.x_pos)**2 + (curr_y - self.y_pos)**2)
+            
+            if dist_from > self.radius + robot_radius:
+                return False
+            
+            return True
 
     def compute_index(min_x:int, max_x:int, min_y:int, max_y:int,
                      gs:float, curr_x:int, curr_y:int) -> float:
@@ -138,168 +164,163 @@ class DjikstrasAstar():
     for obs_pos in obstacle_positions:
         obstacle = Obstacle(obs_pos[0], obs_pos[1], obs_radius)
         obstacle_list.append(obstacle)
-    
+        
 
-    def find_path(self, start_x:float, start_y:float, min_x:int, min_y:int, max_x:int, max_y:int, goal_x:int, goal_y:int, obstacle_list:list, 
-                  gs:float):
+
+
+
     # - Make two bins/dictionaries:
-        unvisited = {}
-        visited = {}
+    unvisited = {}
+    visited = {}
 
 
-        # - Initialize current_node with the following parameters:
-            # - position = start position
-            # - cost = 0
-            # - parent_index = -1
-
-        current_node = Node(start_x, start_y, 0 + m.dist([start_x, start_y], [goal_x, goal_y]), int(-1), 0)
-
-
-        # - initialize current_index by utilizing compute_index() function 
-        # based on the current position, which is the start 
-        current_idx = int(self.compute_index(min_x, max_x, min_y, max_y,
-                        gs, start_x, start_y))
+    # - Initialize current_node with the following parameters:
+        # - position = start position
+        # - cost = 0
+        # - parent_index = -1
+    
+    current_node = Node(start_x, start_y, 0 + m.dist([start_x, start_y], [goal_x, goal_y]), int(-1), 0)
 
 
-        # - insert current_node into unvisited dictionary, 
-        # use the current_index as the key
-        unvisited[current_idx] = current_node
+    # - initialize current_index by utilizing compute_index() function 
+    # based on the current position, which is the start 
+    current_idx = int(compute_index(min_x, max_x, min_y, max_y,
+                    gs, start_x, start_y))
 
-        # - While current node position is not equal to goal location:
 
-        #While current node position is not equal to goal location:
-        while [current_node.x, current_node.y] != [goal_x, goal_y]:
+    # - insert current_node into unvisited dictionary, 
+    # use the current_index as the key
+    unvisited[current_idx] = current_node
+
+    # - While current node position is not equal to goal location:
+
+    #While current node position is not equal to goal location:
+    while [current_node.x, current_node.y] != [goal_x, goal_y]:
+        
+
+        # set current_index to min value from unvisited 
+        current_idx = min(unvisited, key=lambda x:unvisited[x].cost)    
+
+        # - set current_node to unvisited[current_index]
+        current_node = unvisited[current_idx]
+        
+        #print("current node cost is", current_node.cost)
+
+        # - put current_node into visited dictionary
+        visited[current_idx] = current_node
+        
+        # - delete current_index from unvisited 
+        del unvisited[current_idx] 
+        
+        if [current_node.x, current_node.y] == [goal_x, goal_y]:
+            #print("YAY you found it =)")
             
-
-            # set current_index to min value from unvisited 
-            current_idx = min(unvisited, key=lambda x:unvisited[x].cost)    
-
-            # - set current_node to unvisited[current_index]
-            current_node = unvisited[current_idx]
+            wp_node = current_node
+            wp_list = []
+            wp_list.append([wp_node.x, wp_node.y])
             
-            print("current node cost is", current_node.cost)
-
-            # - put current_node into visited dictionary
-            visited[current_idx] = current_node
-            
-            # - delete current_index from unvisited 
-            del unvisited[current_idx] 
-            
-            if [current_node.x, current_node.y] == [goal_x, goal_y]:
-                #print("YAY you found it =)")
-                
-                wp_node = current_node
-                wp_list = []
+            while wp_node.parent_idx != -1:
+                next_idx = wp_node.parent_idx
+                wp_node  = visited[next_idx]            
                 wp_list.append([wp_node.x, wp_node.y])
+            break
+        
+        # Begin search by doing th following:
+        # - Use get_all_moves() to get all moves based on current position
+        all_moves = get_all_moves(current_node.x, current_node.y, gs)
+
+        #initialize a filtered_move list 
+        filtered_moves = []
+
+
+        # - With all moves check if move is_not_valid by using is_not_valid() function
+        #     - This function should check if:
+        #         - Inside obstacle
+        #         - Outside boundary 
+        #         - Not on top of ourselves(already done by get_all moves)
+        for move in all_moves:
+            if (is_not_valid(obstacle_list, min_x, min_y, max_x, max_y, 
+                            move[0], move[1], robot_radius) == True):
+                continue
+            else:
+                #print("good move", move[0], move[1])
+                #If move is valid we append to filtered 
+                filtered_moves.append(move)
                 
-                while wp_node.parent_idx != -1:
-                    next_idx = wp_node.parent_idx
-                    wp_node  = visited[next_idx]            
-                    wp_list.append([wp_node.x, wp_node.y])
-                break
+        #  - loop through all filtered moves:
+        for move in filtered_moves:
+            # based on this current filtered move:
             
-            # Begin search by doing th following:
-            # - Use get_all_moves() to get all moves based on current position
-            all_moves = self.get_all_moves(current_node.x, current_node.y, gs)
+            # calculate the filtered/new index
+            new_index = int(compute_index(min_x, max_x, min_y, max_y,
+                    gs, move[0], move[1]))
+            
+            # calculate the filtered/new cost
+            # from + to new_node
+            new_cost = current_node.djikstras + m.dist(move, [current_node.x, current_node.y]) + m.dist([move[0], move[1]],[goal_x, goal_y])
+            
 
-            #initialize a filtered_move list 
-            filtered_moves = []
+            
+            new_djikstras = current_node.djikstras 
+            + m.dist(move, [current_node.x, current_node.y])
+            
+            #print("cost is", new_cost)
 
 
-            # - With all moves check if move is_not_valid by using is_not_valid() function
-            #     - This function should check if:
-            #         - Inside obstacle
-            #         - Outside boundary 
-            #         - Not on top of ourselves(already done by get_all moves)
-            for move in all_moves:
-                if (self.is_not_valid(obstacle_list, min_x, min_y, max_x, max_y, 
-                                move[0], move[1], robot_radius) == True):
-                    continue
-                else:
-                    #print("good move", move[0], move[1])
-                    #If move is valid we append to filtered 
-                    filtered_moves.append(move)
+            #check if new index is in visited
+            if new_index in visited:
+                continue
+
+            # - if inside unvisited:        
+            if new_index in unvisited:
+                # compare new_cost to unvisited cost:
+                # if new_cost < unvisited cost:
+                if new_cost < unvisited[new_index].cost:
+                    #update the cost value
+                    unvisited[new_index].cost = new_cost
+                    #update the parent index
+                    unvisited[new_index].parent_idx = current_idx
                     
-            #  - loop through all filtered moves:
-            for move in filtered_moves:
-                # based on this current filtered move:
-                
-                # calculate the filtered/new index
-                new_index = int(self.compute_index(min_x, max_x, min_y, max_y,
-                        gs, move[0], move[1]))
-                
-                # calculate the filtered/new cost
-                # from + to new_node
-                new_cost = current_node.djikstras + m.dist(move, [current_node.x, current_node.y]) + m.dist([move[0], move[1]],[goal_x, goal_y])
-                
-
-                
-                new_djikstras = current_node.djikstras 
-                + m.dist(move, [current_node.x, current_node.y])
-                
-                print("cost is", new_cost)
+                # continue to next move since it already exists
+                continue    
+            
+            # - this last condition means that we have a node so 
+            #     make a new node and append to unvisited
+            new_node = Node(move[0], move[1], new_cost, current_idx, new_djikstras)
+            unvisited[new_index] = new_node 
 
 
-                #check if new index is in visited
-                if new_index in visited:
-                    continue
 
-                # - if inside unvisited:        
-                if new_index in unvisited:
-                    # compare new_cost to unvisited cost:
-                    # if new_cost < unvisited cost:
-                    if new_cost < unvisited[new_index].cost:
-                        #update the cost value
-                        unvisited[new_index].cost = new_cost
-                        #update the parent index
-                        unvisited[new_index].parent_idx = current_idx
-                        
-                    # continue to next move since it already exists
-                    continue    
-                
-                # - this last condition means that we have a node so 
-                #     make a new node and append to unvisited
-                new_node = Node(move[0], move[1], new_cost, current_idx, new_djikstras)
-                unvisited[new_index] = new_node 
+            
+            
+            
+    path_x = []
+    path_y = []
+            
+    path_x.append(current_node.x)
+    path_y.append(current_node.y)
+
+    while current_node.parent_idx != -1:
+        
+        #print(current_node.parent_idx)
 
 
-        fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
-        ax.set_xlim(min_x-1, max_x+1)
-        ax.set_ylim(min_y-1, max_y+1)    
-        for obs in obstacle_list:
-            obs_plot = plt.Circle((obs.x_pos, obs.y_pos), obs.radius, color='red')
-            ax.add_patch(obs_plot)
-                
-                
-                
-        path_x = []
-        path_y = []
-                
+
+
+
+        previous_node = current_node
+        temp_idx = previous_node.parent_idx
+        current_node = visited[temp_idx]
+        
         path_x.append(current_node.x)
         path_y.append(current_node.y)
 
-        while current_node.parent_idx != -1:
-            
-            #print(current_node.parent_idx)
+    path = []
+
+    path = [path_x,path_y]
+    return path
 
 
 
 
-
-            previous_node = current_node
-            temp_idx = previous_node.parent_idx
-            current_node = visited[temp_idx]
-            
-            path_x.append(current_node.x)
-            path_y.append(current_node.y)
-
-
-
-        path = plt.plot(path_x,path_y)
-
-        start_plot = plt.Circle((start_x, start_y), obs.radius, color='blue')
-        ax.add_patch(start_plot)
-        goal_plot = plt.Circle((goal_x, goal_y), obs.radius, color='green')
-        ax.add_patch(goal_plot)
-
-        plt.show()
+    
